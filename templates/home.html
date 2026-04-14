@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Expense Tracker</title>
+<style>
+body{
+font-family: Arial;
+background:#f5f7fa;
+padding:30px;
+}
+h1{
+text-align:center;
+color:#333;
+}
+.box{
+width:500px;
+margin:auto;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+p{
+padding:10px;
+border-bottom:1px solid #ddd;
+font-size:18px;
+}
+</style>
+</head>
+<body>
+
+<h1>My Expenses</h1>
+<h2 style="text-align:center;">Predicted Next Expense: ₹{{ prediction }}</h2>
+<h2 style="text-align:center;">Total Expense: ₹{{ total }}</h2>
+<h2 style="text-align:center;">Predicted Next Expense: ₹{{ prediction }}</h2>
+<h2 style="text-align:center;">Remaining Budget: ₹{{ remaining }}</h2>
+
+<div class="box">
+{% for x in data %}
+<p>{{ x.category }} - ₹{{ x.amount }} - {{ x.date }}</p>
+{% endfor %}
+</div>
+
+</body>
+</html>
