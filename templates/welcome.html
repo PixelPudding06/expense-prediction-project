@@ -1,0 +1,293 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+font-family:Arial;
+background:linear-gradient(135deg,#0f172a,#1e293b,#334155);
+color:white;
+overflow-x:hidden;
+position:relative;
+min-height:100vh;
+}
+
+.coin{
+position:absolute;
+font-size:28px;
+opacity:.22;
+animation:floatcoin linear infinite;
+pointer-events:none;
+}
+
+.c1{left:8%; top:20%; animation-duration:9s;}
+.c2{right:10%; top:35%; animation-duration:11s;}
+.c3{left:18%; bottom:18%; animation-duration:10s;}
+.c4{right:22%; bottom:15%; animation-duration:12s;}
+
+.main{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:60px 8%;
+gap:40px;
+min-height:85vh;
+}
+
+.left,.right{width:50%;}
+
+.right img{
+width:100%;
+max-width:520px;
+animation:heroFloat 3s infinite ease-in-out;
+}
+
+h1{
+font-size:58px;
+margin-bottom:16px;
+background:linear-gradient(to right,#38bdf8,#a78bfa,#f472b6);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+.tagline{
+font-size:26px;
+height:34px;
+margin-bottom:18px;
+color:#f8fafc;
+font-weight:bold;
+}
+
+p{
+font-size:19px;
+color:#cbd5e1;
+line-height:1.7;
+margin-bottom:25px;
+max-width:650px;
+}
+
+.btn{
+display:inline-block;
+margin:8px;
+padding:14px 24px;
+background:#38bdf8;
+color:white;
+text-decoration:none;
+border-radius:14px;
+font-weight:bold;
+transition:.3s;
+border:none;
+cursor:pointer;
+}
+
+.btn:hover{
+transform:translateY(-5px);
+background:#0ea5e9;
+}
+
+.features{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:15px;
+padding:0 8% 40px;
+}
+
+.card{
+background:rgba(255,255,255,0.08);
+padding:18px;
+border-radius:16px;
+text-align:center;
+cursor:pointer;
+transition:.3s;
+}
+
+.card:hover{
+transform:translateY(-8px);
+background:rgba(255,255,255,0.14);
+}
+
+.popup{
+display:none;
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:#1e293b;
+padding:25px;
+border-radius:18px;
+width:340px;
+z-index:1000;
+box-shadow:0 0 25px rgba(0,0,0,.45);
+text-align:center;
+}
+
+.popup h2{margin-bottom:10px;color:#38bdf8;}
+.popup p{font-size:17px;color:#e2e8f0;margin-bottom:16px;}
+
+.overlay{
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.6);
+z-index:999;
+}
+
+.footer{
+text-align:center;
+padding:25px;
+color:#94a3b8;
+}
+
+@keyframes heroFloat{
+0%,100%{transform:translateY(0);}
+50%{transform:translateY(-12px);}
+}
+
+@keyframes floatcoin{
+0%{transform:translateY(0) rotate(0deg);}
+50%{transform:translateY(-40px) rotate(180deg);}
+100%{transform:translateY(0) rotate(360deg);}
+}
+
+@media(max-width:950px){
+.main{
+flex-direction:column;
+text-align:center;
+padding-top:40px;
+}
+
+.left,.right{width:100%;}
+
+h1{font-size:42px;}
+.tagline{font-size:22px;height:30px;}
+p{font-size:17px;margin:auto auto 22px;}
+
+.features{
+grid-template-columns:repeat(2,1fr);
+}
+}
+
+@media(max-width:560px){
+.features{
+grid-template-columns:1fr;
+}
+.btn{
+display:block;
+margin:10px auto;
+width:220px;
+}
+}
+</style>
+</head>
+
+<body>
+
+<div class="coin c1">💰</div>
+<div class="coin c2">🪙</div>
+<div class="coin c3">💸</div>
+<div class="coin c4">🪙</div>
+
+<div class="main">
+
+<div class="left">
+
+<h1>Expense Prediction Pro</h1>
+
+<div class="tagline" id="typing"></div>
+
+<p>
+Track daily expenses, predict future spending, manage budgets smartly and grow savings with confidence.
+</p>
+
+<a href="/login/" class="btn">Login</a>
+<a href="/register/" class="btn">Register</a>
+<a href="/dashboard/" class="btn">Get Started</a>
+<button class="btn" onclick="speakWelcome()">🎤 Voice Welcome</button>
+
+</div>
+
+<div class="right">
+<img src="{% static 'images/hero.png' %}" alt="Hero">
+</div>
+
+</div>
+
+<div class="features">
+
+<div class="card" onclick="openPopup('📊 Smart Charts','Visualize your expenses with colorful charts and category insights.')">📊 Smart Charts</div>
+
+<div class="card" onclick="openPopup('🤖 ML Prediction','Uses historical spending trends to predict future expenses.')">🤖 ML Prediction</div>
+
+<div class="card" onclick="openPopup('💰 Budget Planner','Track remaining budget and spend smarter every month.')">💰 Budget Planner</div>
+
+<div class="card" onclick="openPopup('🔐 Secure Login','Personal login system keeps your account private and secure.')">🔐 Secure Login</div>
+
+</div>
+
+<div class="overlay" id="overlay" onclick="closePopup()"></div>
+
+<div class="popup" id="popup">
+<h2 id="popTitle"></h2>
+<p id="popText"></p>
+<button class="btn" onclick="closePopup()">Close</button>
+</div>
+
+<div class="footer">
+Crafted with 💙 by Khushi
+</div>
+
+<script>
+const words = ["Track. Predict. Grow.", "Smart Money Starts Here.", "Budget Better Every Day."];
+let wi = 0, ci = 0, deleting = false;
+const el = document.getElementById("typing");
+
+function typeLoop(){
+let word = words[wi];
+
+if(!deleting){
+el.textContent = word.slice(0, ci++);
+if(ci > word.length){
+deleting = true;
+setTimeout(typeLoop, 1100);
+return;
+}
+}else{
+el.textContent = word.slice(0, ci--);
+if(ci < 0){
+deleting = false;
+wi = (wi + 1) % words.length;
+ci = 0;
+}
+}
+setTimeout(typeLoop, deleting ? 45 : 85);
+}
+typeLoop();
+
+function speakWelcome(){
+const msg = new SpeechSynthesisUtterance("Welcome to Expense Prediction Pro. Track expenses and grow smarter savings.");
+msg.rate = 1;
+msg.pitch = 1;
+speechSynthesis.speak(msg);
+}
+
+function openPopup(title,text){
+document.getElementById("popTitle").innerText = title;
+document.getElementById("popText").innerText = text;
+document.getElementById("popup").style.display = "block";
+document.getElementById("overlay").style.display = "block";
+}
+
+function closePopup(){
+document.getElementById("popup").style.display = "none";
+document.getElementById("overlay").style.display = "none";
+}
+</script>
+
+</body>
+</html>

@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Expense
 from sklearn.linear_model import LinearRegression
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
 
 def dashboard(request):
     data = Expense.objects.all().order_by('-date')
@@ -85,3 +87,41 @@ def edit_expense(request, id):
         return redirect('/history/')
 
     return render(request, 'edit.html', {'item': item})
+def register_user(request):
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+
+        User.objects.create_user(
+            username=username,
+            password=password
+        )
+
+        return redirect('/login/')
+
+    return render(request, 'register.html')
+
+
+def login_user(request):
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+
+        user = authenticate(
+            request,
+            username=username,
+            password=password
+        )
+
+        if user is not None:
+            login(request, user)
+            return redirect('/')
+
+    return render(request, 'login.html')
+
+
+def logout_user(request):
+    logout(request)
+    return redirect('/login/')
+def welcome(request):
+    return render(request, 'welcome.html')
