@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="card">
+
+<h2>Expense History</h2>
+
+{% for x in data %}
+
+<p>
+{{ x.category }} - ₹{{ x.amount }} - {{ x.date }}
+
+<a href="/edit/{{ x.id }}/" class="btn">Edit</a>
+
+<a href="/delete/{{ x.id }}/" class="btn">Delete</a>
+
+</p>
+
+{% endfor %}
+
+</div>
+
+{% endblock %}

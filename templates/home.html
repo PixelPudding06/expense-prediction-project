@@ -4,41 +4,78 @@
 <title>Expense Tracker</title>
 <style>
 body{
-font-family: Arial;
-background:#f5f7fa;
+font-family:Arial;
+background:linear-gradient(to right,#dbeafe,#eff6ff);
 padding:30px;
 }
-h1{
-text-align:center;
-color:#333;
-}
 .box{
-width:500px;
+width:700px;
 margin:auto;
 background:white;
-padding:20px;
-border-radius:10px;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
+padding:25px;
+border-radius:15px;
+box-shadow:0 0 15px rgba(0,0,0,0.1);
 }
-p{
+input{
+width:96%;
+padding:12px;
+margin:6px 0;
+border:1px solid #ccc;
+border-radius:8px;
+}
+button{
+padding:10px 20px;
+background:#2563eb;
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
+.card{
+background:#f8fafc;
 padding:10px;
-border-bottom:1px solid #ddd;
-font-size:18px;
+margin:8px 0;
+border-radius:10px;
+display:flex;
+justify-content:space-between;
+}
+.delete{
+background:red;
+padding:6px 10px;
+text-decoration:none;
+color:white;
+border-radius:6px;
+}
+h1,h2{
+text-align:center;
 }
 </style>
 </head>
 <body>
 
-<h1>My Expenses</h1>
-<h2 style="text-align:center;">Predicted Next Expense: ₹{{ prediction }}</h2>
-<h2 style="text-align:center;">Total Expense: ₹{{ total }}</h2>
-<h2 style="text-align:center;">Predicted Next Expense: ₹{{ prediction }}</h2>
-<h2 style="text-align:center;">Remaining Budget: ₹{{ remaining }}</h2>
-
 <div class="box">
+
+<h1>💸 Expense Prediction App</h1>
+
+<form method="POST">
+{% csrf_token %}
+<input type="text" name="category" placeholder="Category" required>
+<input type="number" name="amount" placeholder="Amount" required>
+<input type="date" name="date" required>
+<center><button type="submit">Add Expense</button></center>
+</form>
+
+<h2>Total: ₹{{ total }}</h2>
+<h2>Prediction: ₹{{ prediction }}</h2>
+<h2>Remaining: ₹{{ remaining }}</h2>
+
 {% for x in data %}
-<p>{{ x.category }} - ₹{{ x.amount }} - {{ x.date }}</p>
+<div class="card">
+<span>{{ x.category }} - ₹{{ x.amount }} - {{ x.date }}</span>
+<a href="/delete/{{ x.id }}/" class="delete">Delete</a>
+</div>
 {% endfor %}
+
 </div>
 
 </body>

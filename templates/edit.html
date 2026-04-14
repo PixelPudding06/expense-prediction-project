@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="card">
+
+<h2>Edit Expense</h2>
+
+<form method="POST">
+{% csrf_token %}
+
+<input type="text" name="category" value="{{ item.category }}" required>
+
+<input type="number" name="amount" value="{{ item.amount }}" required>
+
+<input type="date" name="date" value="{{ item.date|date:'Y-m-d' }}" required>
+
+<br><br>
+
+<button class="btn">Update Expense</button>
+
+</form>
+
+</div>
+
+{% endblock %}

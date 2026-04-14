@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+.grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:15px;
+}
+
+.stat{
+color:white;
+padding:20px;
+border-radius:15px;
+font-size:22px;
+font-weight:bold;
+text-align:center;
+}
+
+.one{background:#8b5cf6;}
+.two{background:#10b981;}
+.three{background:#f59e0b;}
+
+.list p{
+padding:10px;
+background:#f8fafc;
+border-radius:10px;
+margin:8px 0;
+}
+</style>
+
+<h1>💸 Expense Dashboard</h1>
+
+<div class="grid">
+
+<div class="stat one">
+Total Expense <br> ₹{{ total }}
+</div>
+
+<div class="stat two">
+Remaining <br> ₹{{ remaining }}
+</div>
+
+<div class="stat three">
+Prediction <br> ₹{{ prediction }}
+</div>
+
+</div>
+
+<div class="card">
+<h2>Category Pie Chart</h2>
+
+<canvas id="pieChart"></canvas>
+</div>
+
+<div class="card list">
+<h2>Recent Expenses</h2>
+
+{% for x in data %}
+<p>{{ x.category }} - ₹{{ x.amount }} - {{ x.date }}</p>
+{% endfor %}
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+new Chart(document.getElementById('pieChart'), {
+type: 'pie',
+data: {
+labels: {{ labels|safe }},
+datasets: [{
+data: {{ values|safe }}
+}]
+}
+});
+</script>
+
+{% endblock %}
