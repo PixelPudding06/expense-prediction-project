@@ -3,34 +3,57 @@
 {% block content %}
 
 <style>
+
 .grid{
 display:grid;
 grid-template-columns:repeat(3,1fr);
-gap:15px;
+gap:18px;
+margin-top:20px;
 }
 
 .stat{
-color:white;
-padding:20px;
-border-radius:15px;
+padding:25px;
+border-radius:18px;
+text-align:center;
 font-size:22px;
 font-weight:bold;
-text-align:center;
+color:white;
+transition:0.3s;
+box-shadow:0 0 18px rgba(0,0,0,0.25);
 }
 
-.one{background:#8b5cf6;}
-.two{background:#10b981;}
-.three{background:#f59e0b;}
+.stat:hover{
+transform:scale(1.05);
+}
+
+.one{
+background:linear-gradient(135deg,#8b5cf6,#7c3aed);
+}
+
+.two{
+background:linear-gradient(135deg,#10b981,#059669);
+}
+
+.three{
+background:linear-gradient(135deg,#f59e0b,#d97706);
+}
 
 .list p{
-padding:10px;
-background:#f8fafc;
-border-radius:10px;
-margin:8px 0;
+padding:12px;
+border-radius:12px;
+background:rgba(255,255,255,0.06);
+margin:10px 0;
 }
+
+canvas{
+max-width:420px;
+margin:auto;
+display:block;
+}
+
 </style>
 
-<h1>💸 Expense Dashboard</h1>
+<h1>💸 Premium Expense Dashboard</h1>
 
 <div class="grid">
 
@@ -49,13 +72,12 @@ Prediction <br> ₹{{ prediction }}
 </div>
 
 <div class="card">
-<h2>Category Pie Chart</h2>
-
+<h2>🥧 Expense Pie Chart</h2>
 <canvas id="pieChart"></canvas>
 </div>
 
 <div class="card list">
-<h2>Recent Expenses</h2>
+<h2>📜 Recent Expenses</h2>
 
 {% for x in data %}
 <p>{{ x.category }} - ₹{{ x.amount }} - {{ x.date }}</p>
