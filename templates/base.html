@@ -91,6 +91,85 @@ margin:8px 0;
 {% block content %}
 {% endblock %}
 </div>
+<style>
+#mimiBtn{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#38bdf8;
+color:white;
+padding:15px;
+border-radius:50%;
+cursor:pointer;
+font-size:22px;
+z-index:1000;
+}
 
+#mimiBox{
+display:none;
+position:fixed;
+bottom:80px;
+right:20px;
+width:320px;
+background:#1e293b;
+padding:15px;
+border-radius:16px;
+z-index:1000;
+box-shadow:0 0 20px rgba(0,0,0,.35);
+}
+
+#mimiMessages{
+height:260px;
+overflow-y:auto;
+margin-bottom:10px;
+font-size:14px;
+}
+
+#mimiInput{
+width:100%;
+padding:10px;
+border-radius:10px;
+border:none;
+margin-bottom:8px;
+}
+</style>
+
+<div id="mimiBtn" onclick="toggleMimi()">💬</div>
+
+<div id="mimiBox">
+<div id="mimiMessages">
+<b>Mimi:</b> Hi! I'm Mimi 💖 Ask me about money, budget or savings.
+</div>
+
+<input id="mimiInput" placeholder="Ask Mimi...">
+
+<button class="btn" onclick="sendMimi()">Send</button>
+</div>
+
+<script>
+function toggleMimi(){
+let box=document.getElementById("mimiBox");
+box.style.display = box.style.display=="block" ? "none" : "block";
+}
+
+function sendMimi(){
+let input=document.getElementById("mimiInput");
+let msg=input.value;
+
+if(msg=="") return;
+
+let area=document.getElementById("mimiMessages");
+area.innerHTML += "<br><b>You:</b> "+msg;
+
+fetch("/mimi/?msg="+encodeURIComponent(msg))
+.then(res=>res.json())
+.then(data=>{
+area.innerHTML += "<br><b>Mimi:</b> "+data.reply;
+area.scrollTop = area.scrollHeight;
+});
+
+input.value="";
+}
+</script>
 </body>
 </html>

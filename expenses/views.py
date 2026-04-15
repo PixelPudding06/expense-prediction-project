@@ -1,8 +1,17 @@
+from django.http import HttpResponse
+from reportlab.pdfgen import canvas
+import os
+from dotenv import load_dotenv
+from google import genai
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Expense
 from sklearn.linear_model import LinearRegression
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+load_dotenv()
+
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 def dashboard(request):
     data = Expense.objects.all().order_by('-date')
@@ -125,3 +134,61 @@ def logout_user(request):
     return redirect('/login/')
 def welcome(request):
     return render(request, 'welcome.html')
+def mimi_chat(request):
+    user_message = request.GET.get("msg")
+
+    prompt = f"""
+    You are Mimi, a cute smart finance assistant for Expense Prediction Pro.
+    Reply in short, friendly and useful style.
+    User: {user_message}
+    """
+
+    response = model.generate_content(prompt)
+
+    return JsonResponse({
+        "reply": response.text
+    })
+def mimi_chat(request):
+    try:
+        user_message = request.GET.get("msg", "")
+
+        prompt = f"""
+You are Mimi, a cute smart finance assistant for Expense Prediction Pro.
+Reply short, friendly and useful.
+User: {user_message}
+"""
+
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt
+        )
+
+        return JsonResponse({
+            "reply": response.text
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            "reply": str(e)
+        })
+def download_pdf(request):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="report.pdf"'
+
+    p = canvas.Canvas(response)
+
+    p.setFont("Helvetica-Bold", 18)
+    p.drawString(180, 800, "Expense Report")
+
+    p.setFont("Helvetica", 12)
+
+    y = 760
+
+    expenses = Expense.objects.all()
+
+    for x in expenses:
+        p.drawString(50, y, f"{x.category} - Rs {x.amount} - {x.date}")
+        y -= 25
+
+    p.save()
+    return response

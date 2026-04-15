@@ -1,7 +1,8 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
-from expenses.views import welcome, dashboard, add_expense, history, delete_expense, chart, edit_expense, register_user, login_user, logout_user
-from django.conf import settings
+from expenses.views import welcome, dashboard, add_expense, history, delete_expense, chart, edit_expense, register_user, login_user, logout_user, mimi_chat, download_pdf
 from django.conf.urls.static import static
 
 urlpatterns = [
@@ -16,6 +17,8 @@ urlpatterns = [
     path('register/', register_user),
     path('login/', login_user),
     path('logout/', logout_user),
+    path('mimi/', mimi_chat),
+    path('pdf/', download_pdf),
 
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
