@@ -2,9 +2,14 @@
 
 {% block content %}
 
-<div class="card">
+<div class="card" style="max-width:500px;margin:auto;text-align:center;">
 
-<h2>🔐 Login</h2>
+<h2>🔐 Welcome Back</h2>
+<p>Login to continue</p>
+
+{% if message %}
+<p style="color:#fca5a5;">{{ message }}</p>
+{% endif %}
 
 <form method="POST">
 {% csrf_token %}
@@ -19,7 +24,10 @@
 
 </form>
 
-<p>New user? <a href="/register/">Register</a></p>
+<br>
+
+<p>New here?</p>
+<a href="/register/" class="btn">Create Account</a>
 
 </div>
 

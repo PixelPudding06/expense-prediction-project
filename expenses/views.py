@@ -1,117 +1,39 @@
-from django.http import HttpResponse
-from reportlab.pdfgen import canvas
-import os
-from dotenv import load_dotenv
-from google import genai
-from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Expense
-from sklearn.linear_model import LinearRegression
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-load_dotenv()
+from django.contrib.auth.decorators import login_required
+from reportlab.pdfgen import canvas
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-
-def dashboard(request):
-    data = Expense.objects.all().order_by('-date')
-
-    total = sum(x.amount for x in data)
-
-    amounts = [x.amount for x in data]
-    months = [[i+1] for i in range(len(amounts))]
-
-    if len(amounts) > 1:
-        model = LinearRegression()
-        model.fit(months, amounts)
-        prediction = int(model.predict([[len(amounts)+1]])[0])
-
-    elif len(amounts) == 1:
-        prediction = amounts[0]
-
-    else:
-        prediction = 0
-
-    remaining = 5000 - total
-
-    labels = []
-    values = []
-
-    for x in data:
-        labels.append(x.category)
-        values.append(x.amount)
-
-    return render(request, 'dashboard.html', {
-        'data': data[:5],
-        'total': total,
-        'prediction': prediction,
-        'remaining': remaining,
-        'labels': labels,
-        'values': values
-    })
-
-def add_expense(request):
-    if request.method == "POST":
-        Expense.objects.create(
-            category=request.POST['category'],
-            amount=request.POST['amount'],
-            date=request.POST['date']
-        )
-        return redirect('/history/')
-
-    return render(request, 'add_expense.html')
+from .models import Expense
 
 
-def history(request):
-    data = Expense.objects.all().order_by('-date')
-    return render(request, 'history.html', {'data': data})
+def welcome(request):
+    return render(request, 'welcome.html')
 
 
-def delete_expense(request, id):
-    item = get_object_or_404(Expense, id=id)
-    item.delete()
-    return redirect('/history/')
-def chart(request):
-    data = Expense.objects.all()
-
-    labels = []
-    values = []
-
-    for x in data:
-        labels.append(x.category)
-        values.append(x.amount)
-
-    return render(request, 'chart.html', {
-        'labels': labels,
-        'values': values
-    })
-def edit_expense(request, id):
-    item = get_object_or_404(Expense, id=id)
-
-    if request.method == "POST":
-        item.category = request.POST['category']
-        item.amount = request.POST['amount']
-        item.date = request.POST['date']
-        item.save()
-        return redirect('/history/')
-
-    return render(request, 'edit.html', {'item': item})
 def register_user(request):
+    message = ""
+
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
 
-        User.objects.create_user(
-            username=username,
-            password=password
-        )
+        if User.objects.filter(username=username).exists():
+            message = "Username already exists 😅"
+        else:
+            User.objects.create_user(
+                username=username,
+                password=password
+            )
+            return redirect('/login/')
 
-        return redirect('/login/')
-
-    return render(request, 'register.html')
+    return render(request, 'register.html', {'message': message})
 
 
 def login_user(request):
+    message = ""
+
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
@@ -124,71 +46,116 @@ def login_user(request):
 
         if user is not None:
             login(request, user)
-            return redirect('/')
+            return redirect('/dashboard/')
+        else:
+            message = "Invalid username or password 😅"
 
-    return render(request, 'login.html')
+    return render(request, 'login.html', {'message': message})
 
 
 def logout_user(request):
     logout(request)
     return redirect('/login/')
-def welcome(request):
-    return render(request, 'welcome.html')
-def mimi_chat(request):
-    user_message = request.GET.get("msg")
 
-    prompt = f"""
-    You are Mimi, a cute smart finance assistant for Expense Prediction Pro.
-    Reply in short, friendly and useful style.
-    User: {user_message}
-    """
 
-    response = model.generate_content(prompt)
+@login_required(login_url='/login/')
+def dashboard(request):
+    data = Expense.objects.all()
 
-    return JsonResponse({
-        "reply": response.text
+    total = 0
+
+    for x in data:
+        total += x.amount
+
+    budget = 5000
+    remaining = budget - total
+    prediction = total + 500
+
+    labels = []
+    values = []
+
+    for x in data:
+        labels.append(x.category)
+        values.append(x.amount)
+
+    return render(request, 'dashboard.html', {
+        'data': data,
+        'total': total,
+        'budget': budget,
+        'remaining': remaining,
+        'prediction': prediction,
+        'labels': labels,
+        'values': values,
     })
-def mimi_chat(request):
-    try:
-        user_message = request.GET.get("msg", "")
 
-        prompt = f"""
-You are Mimi, a cute smart finance assistant for Expense Prediction Pro.
-Reply short, friendly and useful.
-User: {user_message}
-"""
 
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt
+@login_required(login_url='/login/')
+def add_expense(request):
+    if request.method == "POST":
+        category = request.POST['category']
+        amount = request.POST['amount']
+        date = request.POST['date']
+
+        Expense.objects.create(
+            category=category,
+            amount=amount,
+            date=date
         )
 
-        return JsonResponse({
-            "reply": response.text
-        })
+        return redirect('/dashboard/')
 
-    except Exception as e:
-        return JsonResponse({
-            "reply": str(e)
-        })
+    return render(request, 'add_expense.html')
+
+
+@login_required(login_url='/login/')
+def history(request):
+    data = Expense.objects.all()
+    return render(request, 'history.html', {'data': data})
+
+
+@login_required(login_url='/login/')
+def chart(request):
+    data = Expense.objects.all()
+    return render(request, 'chart.html', {'data': data})
+
+
+@login_required(login_url='/login/')
+def edit_expense(request, id):
+    expense = get_object_or_404(Expense, id=id)
+
+    if request.method == "POST":
+        expense.category = request.POST['category']
+        expense.amount = request.POST['amount']
+        expense.date = request.POST['date']
+        expense.save()
+
+        return redirect('/history/')
+
+    return render(request, 'edit_expense.html', {'expense': expense})
+
+
+@login_required(login_url='/login/')
+def delete_expense(request, id):
+    expense = get_object_or_404(Expense, id=id)
+    expense.delete()
+    return redirect('/history/')
+
+
+@login_required(login_url='/login/')
 def download_pdf(request):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="Expense_Report.pdf"'
 
     p = canvas.Canvas(response)
 
-    # Title
     p.setFont("Helvetica-Bold", 22)
     p.drawString(170, 800, "Expense Report")
 
-    # Subtitle
     p.setFont("Helvetica", 12)
     p.drawString(180, 780, "Expense Prediction Pro")
 
-    # Line
     p.line(40, 770, 550, 770)
 
-    # Heading
     p.setFont("Helvetica-Bold", 14)
     p.drawString(50, 740, "Category")
     p.drawString(230, 740, "Amount")
@@ -213,11 +180,9 @@ def download_pdf(request):
             p.showPage()
             y = 800
 
-    # Total
     p.setFont("Helvetica-Bold", 14)
     p.drawString(50, y-20, "Total Expense: Rs " + str(total))
 
-    # Footer
     p.setFont("Helvetica", 10)
     p.drawString(180, 40, "Generated by Expense Prediction Pro")
 
